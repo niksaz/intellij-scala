@@ -20,6 +20,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ui.UIUtil
+import com.pty4j.{PtyProcess, WinSize}
 
 import scala.collection.JavaConverters._
 
@@ -71,6 +72,14 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   override def initAndRun(): Unit = {
     super.initAndRun()
     UIUtil.invokeLaterIfNeeded(new Runnable {
+
+﻿     // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
+      // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
+      // TODO perhaps determine actual width of window and adapt accordingly
+      myProcessHandler.getProcess match {
+        case proc: PtyProcess => proc.setWinSize(new WinSize (400, 100))
+      }
+
       override def run(): Unit = {
         // assume initial state is Working
         // FIXME this is not correct when shell process was started without view
