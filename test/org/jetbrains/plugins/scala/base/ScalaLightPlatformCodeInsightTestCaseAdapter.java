@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,10 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.*;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
@@ -26,8 +22,7 @@ import java.util.Arrays;
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
-    private String JDK_HOME = TestUtils.getDefaultJdk();
-    private LibraryLoader[] myLibraryLoaders = null;
+    private CompositeLibrariesLoader myLibrariesLoader = null;
 
     protected String rootPath() {
         return null;
@@ -43,7 +38,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected Sdk getProjectJDK() {
-        return JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false);
+        return TestUtils.createJdk();
     }
 
     protected TestUtils.ScalaSdkVersion getDefaultScalaSDKVersion() {
@@ -60,7 +55,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         Module module = getModule();
 
         ArrayList<LibraryLoader> libraryLoaders = new ArrayList<LibraryLoader>();
-        libraryLoaders.add(new ScalaLibraryLoader(getProject(), module, isIncludeReflectLibrary(), ScalaLibraryLoader.getSdkNone()));
+        libraryLoaders.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module, getProject()));
 
         String path = rootPath();
         if (path != null) {
@@ -69,10 +64,9 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
         libraryLoaders.addAll(Arrays.asList(additionalLibraries(module)));
 
-        myLibraryLoaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
-        for (LibraryLoader libraryLoader : myLibraryLoaders) {
-            libraryLoader.init(libVersion);
-        }
+        LibraryLoader[] loaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
+        myLibrariesLoader = CompositeLibrariesLoader$.MODULE$.apply(loaders, module);
+        myLibrariesLoader.init(libVersion);
 
         TestUtils.disableTimerThread();
         //libLoader.clean();
@@ -129,11 +123,9 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected void tearDown() throws Exception {
-        if (myLibraryLoaders != null) {
-            for (LibraryLoader libraryLoader : myLibraryLoaders) {
-                libraryLoader.clean();
-            }
-            myLibraryLoaders = null;
+        if (myLibrariesLoader != null) {
+            myLibrariesLoader.clean();
+            myLibrariesLoader = null;
         }
 
         super.tearDown();
