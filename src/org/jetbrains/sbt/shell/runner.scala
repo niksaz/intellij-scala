@@ -73,7 +73,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     super.initAndRun()
     UIUtil.invokeLaterIfNeeded(new Runnable {
 
-﻿     // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
+      // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
       // TODO perhaps determine actual width of window and adapt accordingly
       myProcessHandler.getProcess match {

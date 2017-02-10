@@ -91,13 +91,19 @@ class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
 }
 
 class SbtSettingNode(val data: SbtSettingData) extends Node[SbtSettingData] {
-  def this(label:String, description: String, rank: Int) = this(new SbtSettingData(SbtProjectSystem.Id, label, description, rank))
+  def this(label:String, description: String, rank: Int, value: String) =
+    this(new SbtSettingData(SbtProjectSystem.Id, label, description, rank, value))
   override protected def key: Key[SbtSettingData] = SbtSettingData.Key
 }
 
 class SbtTaskNode(val data: SbtTaskData) extends Node[SbtTaskData] {
   def this(label:String, description: String, rank: Int) = this(new SbtTaskData(SbtProjectSystem.Id, label, description, rank))
   override protected def key: Key[SbtTaskData] = SbtTaskData.Key
+}
+
+class SbtCommandNode(val data: SbtCommandData) extends Node[SbtCommandData] {
+  def this(name: String, help: Seq[(String,String)]) = this(new SbtCommandData(SbtProjectSystem.Id, name, help))
+  override protected def key: Key[SbtCommandData] = SbtCommandData.Key
 }
 
 class ModuleExtNode(val data: ModuleExtData)

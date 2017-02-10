@@ -6,7 +6,7 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
+import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
 import scala.collection.JavaConverters._
 
@@ -92,5 +92,20 @@ class SbtSettingViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtSetti
 
     val data = dataNode.getData
     setNameAndTooltip(data.label, data.description)
+  }
+}
+
+class SbtCommandViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtCommandData])
+  extends ExternalSystemNode[SbtCommandData](view, null, dataNode) {
+
+  override def update(presentation: PresentationData): Unit = {
+    super.update(presentation)
+    // presentation.setIcon(sbtIcon) TODO
+
+    val data = dataNode.getData()
+    val helpString = data.help.map { case (name, description) =>
+        s"$name : $description"
+    }.mkString("\n")
+    setNameAndTooltip(data.name, helpString)
   }
 }

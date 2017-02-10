@@ -149,6 +149,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(new SbtModuleNode(project.id, project.buildURI))
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
+      moduleNode.addAll(createCommandData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
@@ -200,7 +201,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createSettingData(project: sbtStructure.ProjectData): Seq[SbtSettingNode] = {
     project.settings.map { s =>
-      new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank)
+      // TODO use options for description, value and handle them in the UI appropriately
+      new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank, s.stringValue.getOrElse(""))
+    }
+  }
+
+  private def createCommandData(project: sbtStructure.ProjectData) = {
+    project.commands.map { c =>
+      new SbtCommandNode(c.name, c.help)
     }
   }
 
