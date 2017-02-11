@@ -207,7 +207,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createCommandData(project: sbtStructure.ProjectData) = {
-    project.commands.map { c =>
+     project.commands.map { c =>
       new SbtCommandNode(c.name, c.help)
     }
   }

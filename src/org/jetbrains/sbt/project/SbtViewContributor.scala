@@ -15,7 +15,7 @@ import scala.collection.JavaConverters._
   */
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key)
+  val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -26,6 +26,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
 
     val taskNodes = dataNodes.get(SbtTaskData.Key).asScala
     val settingNodes = dataNodes.get(SbtSettingData.Key).asScala
+    val commandNodes = dataNodes.get(SbtCommandData.Key).asScala
 
     val taskViewNodes = taskNodes.map { dataNode =>
       val typedNode = dataNode.asInstanceOf[DataNode[SbtTaskData]]
@@ -37,37 +38,51 @@ class SbtViewContributor extends ExternalSystemViewContributor {
       new SbtSettingViewNode(externalProjectsView, typedNode)
     }
 
+    val commandViewNodes = commandNodes.map { dataNode =>
+      val typedNode = dataNode.asInstanceOf[DataNode[SbtCommandData]]
+      new SbtCommandViewNode(externalProjectsView, typedNode)
+    }
+
     val tasksNode = new SbtTasksNode(externalProjectsView)
     tasksNode.addAll(taskViewNodes.asJavaCollection)
     val settingsNode = new SbtSettingsNode(externalProjectsView)
     settingsNode.addAll(settingViewNodes.asJavaCollection)
+    val commandsNode = new SbtCommandsNode(externalProjectsView)
+    commandsNode.addAll(commandViewNodes.asJavaCollection)
 
-    val result = new util.ArrayList[ExternalSystemNode[_]](2)
-    result.add(settingsNode)
-    result.add(tasksNode)
-
-    result
+    List[ExternalSystemNode[_]](settingsNode, tasksNode, commandsNode).asJava
   }
 
 }
 
-// dummy objects to satisfy compiler
+// dummy data objects for collection nodes
 case object SbtTasks
 case object SbtSettings
+case object SbtCommands
 
 class SbtTasksNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtTasks.type](view, null) {
+  override def getData: SbtTasks.type = SbtTasks
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
     // presentation.setIcon(sbtIcon) TODO
-    setNameAndTooltip("SBT Tasks", "SBT tasks defined in project")
+    setNameAndTooltip("SBT Tasks", "SBT tasks defined in this project")
   }
 }
 
 class SbtSettingsNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtSettings.type](view, null) {
+  override def getData: SbtSettings.type = SbtSettings
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
     // presentation.setIcon(sbtIcon) TODO
-    setNameAndTooltip("SBT Settings", "SBT settings defined in project")
+    setNameAndTooltip("SBT Settings", "SBT settings defined in this project")
+  }
+}
+
+class SbtCommandsNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtCommands.type](view, null) {
+  override def getData: SbtCommands.type = SbtCommands
+  override def update(presentation: PresentationData): Unit = {
+    super.update(presentation)
+    setNameAndTooltip("SBT Commands", "Named SBT commands defined in this project")
   }
 }
 
