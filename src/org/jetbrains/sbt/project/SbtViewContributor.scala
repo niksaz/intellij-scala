@@ -43,11 +43,11 @@ class SbtViewContributor extends ExternalSystemViewContributor {
       new SbtCommandViewNode(externalProjectsView, typedNode)
     }
 
-    val tasksNode = new SbtTasksNode(externalProjectsView)
+    val tasksNode = new SbtTasksGroupNode(externalProjectsView)
     tasksNode.addAll(taskViewNodes.asJavaCollection)
-    val settingsNode = new SbtSettingsNode(externalProjectsView)
+    val settingsNode = new SbtSettingsGroupNode(externalProjectsView)
     settingsNode.addAll(settingViewNodes.asJavaCollection)
-    val commandsNode = new SbtCommandsNode(externalProjectsView)
+    val commandsNode = new SbtCommandsGroupNode(externalProjectsView)
     commandsNode.addAll(commandViewNodes.asJavaCollection)
 
     List[ExternalSystemNode[_]](settingsNode, tasksNode, commandsNode).asJava
@@ -55,13 +55,13 @@ class SbtViewContributor extends ExternalSystemViewContributor {
 
 }
 
-// dummy data objects for collection nodes
+// data nodes for grouping nodes. These are required for correct processing by external system
+class GroupDataNode[T](data: T) extends DataNode[T](new Key[T](data.getClass.getName, 0), data, null)
 case object SbtTasks
 case object SbtSettings
 case object SbtCommands
 
-class SbtTasksNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtTasks.type](view, null) {
-  override def getData: SbtTasks.type = SbtTasks
+class SbtTasksGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtTasks)) {
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
     // presentation.setIcon(sbtIcon) TODO
@@ -69,8 +69,7 @@ class SbtTasksNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtTas
   }
 }
 
-class SbtSettingsNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtSettings.type](view, null) {
-  override def getData: SbtSettings.type = SbtSettings
+class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
     // presentation.setIcon(sbtIcon) TODO
@@ -78,10 +77,10 @@ class SbtSettingsNode(view: ExternalProjectsView) extends ExternalSystemNode[Sbt
   }
 }
 
-class SbtCommandsNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtCommands.type](view, null) {
-  override def getData: SbtCommands.type = SbtCommands
+class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
+    // presentation.setIcon(sbtIcon) TODO
     setNameAndTooltip("SBT Commands", "Named SBT commands defined in this project")
   }
 }
