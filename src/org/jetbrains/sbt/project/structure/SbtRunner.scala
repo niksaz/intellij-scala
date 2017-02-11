@@ -62,7 +62,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       val setCommands = Seq(
         s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
         s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options""""
-      ).mkString("set scala.collection.Seq(", ",", ")")
+      ).mkString("set _root_.scala.collection.Seq(", ",", ")")
 
       val sbtCommands = Seq(
         setCommands,
