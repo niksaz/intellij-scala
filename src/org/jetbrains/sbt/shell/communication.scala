@@ -40,6 +40,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   def command(cmd: String): Future[ProjectTaskResult] =
     queueCommand(cmd, new CommandListener(None))
 
+  /** Execute sbt task with indicator that gets updated. */
   def commandWithIndicator(cmd: String, indicator: ProgressIndicator): Future[ProjectTaskResult] = {
     val listener = new CommandListener(Option(indicator))
     queueCommand(cmd, listener)
@@ -140,7 +141,7 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
   override def startNotified(event: ProcessEvent): Unit = {
     indicator.foreach { i =>
-      i.setText("build started")
+      i.setText("build started") // FIXME build-specific stuff doesn't belong in here
       i.setFraction(0.1)
     }
   }
@@ -155,7 +156,7 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
     indicator.foreach { i =>
       i.setFraction(0.2)
-      i.setText("building ...")
+      i.setText("building ...") // FIXME build-specific stuff doesn't belong in here
       i.setText2(text)
     }
 
@@ -173,7 +174,7 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
       val res = new ProjectTaskResult(false, errors, warnings)
       indicator.foreach { i =>
         i.setFraction(1)
-        i.setText("build completed")
+        i.setText("build completed")  // FIXME build-specific stuff doesn't belong in here
         i.stop()
       }
       promise.complete(Success(res))
@@ -255,3 +256,4 @@ abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.Colore
     onLine(line)
   }
 }
+
