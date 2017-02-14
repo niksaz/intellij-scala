@@ -50,17 +50,24 @@ object SbtProjectData {
   val Key: Key[SbtProjectData] = new Key(classOf[SbtProjectData].getName, ProjectKeys.MODULE.getProcessingWeight + 1)
 }
 
-class SbtSettingData(val owner: ProjectSystemId, val label: String, val description: String, val rank: Int, val value: String) extends AbstractExternalEntityData(owner)
+sealed trait SbtNamedKey {
+  val name: String
+}
+
+class SbtSettingData(val owner: ProjectSystemId, val name: String, val description: String, val rank: Int, val value: String)
+  extends AbstractExternalEntityData(owner) with SbtNamedKey
 object SbtSettingData {
   val Key: Key[SbtSettingData] = new Key(classOf[SbtSettingData].getName, SbtProjectData.Key.getProcessingWeight + 1)
 }
 
-class SbtTaskData(val owner: ProjectSystemId, val label: String, val description: String, val rank: Int) extends AbstractExternalEntityData(owner)
+class SbtTaskData(val owner: ProjectSystemId, val name: String, val description: String, val rank: Int)
+  extends AbstractExternalEntityData(owner) with SbtNamedKey
 object SbtTaskData {
   val Key: Key[SbtTaskData] = new Key(classOf[SbtTaskData].getName, SbtProjectData.Key.getProcessingWeight + 1)
 }
 
 class SbtCommandData(val owner: ProjectSystemId, val name: String, val help: Seq[(String,String)])
+  extends AbstractExternalEntityData(owner) with SbtNamedKey
 object SbtCommandData {
   val Key: Key[SbtCommandData] = new Key(classOf[SbtCommandData].getName, SbtProjectData.Key.getProcessingWeight + 1)
 }

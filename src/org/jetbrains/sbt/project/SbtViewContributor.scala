@@ -93,8 +93,10 @@ class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData
     // presentation.setIcon(sbtIcon) TODO
 
     val data = dataNode.getData
-    setNameAndTooltip(data.label, data.description)
+    setNameAndTooltip(data.name, data.description)
   }
+
+  override def getMenuId: String = "Scala.Sbt.TaskMenu"
 }
 
 class SbtSettingViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtSettingData])
@@ -105,8 +107,10 @@ class SbtSettingViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtSetti
     // presentation.setIcon(sbtIcon) TODO
 
     val data = dataNode.getData
-    setNameAndTooltip(data.label, data.description)
+    setNameAndTooltip(data.name, data.description)
   }
+
+  override def getMenuId: String = "Scala.Sbt.SettingMenu"
 }
 
 class SbtCommandViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtCommandData])
@@ -122,4 +126,6 @@ class SbtCommandViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtComma
     }.mkString("\n")
     setNameAndTooltip(data.name, helpString)
   }
+
+  override def getMenuId: String = "Scala.Sbt.CommandMenu"
 }
