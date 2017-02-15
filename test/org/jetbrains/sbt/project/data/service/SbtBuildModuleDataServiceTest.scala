@@ -27,7 +27,7 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
         name := "Module 1"
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
-        arbitraryNodes += new SbtBuildModuleNode(new SbtBuildModuleData(imports, resolvers))
+        arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers))
       }
     }.build.toDataNode
 
@@ -67,7 +67,7 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtBuildModuleNode(new SbtBuildModuleData(Seq("some import"), Set.empty))
+      arbitraryNodes += new SbtBuildModuleNode(SbtBuildModuleData(Seq("some import"), Set.empty))
     }.build.toDataNode
 
     importProjectData(testProject)

@@ -3,16 +3,28 @@ package org.jetbrains.sbt.project.data
 import java.io.File
 import java.net.URI
 
-import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
+import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.data.SbtEntityData._
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
-import SbtEntityData._
 
+abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
 
-abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id)
+  // need to manually specify equals/hashCode here because it is not generated for case classes inheriting from
+  // AbstractExternalEntityData
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case data: SbtEntityData =>
+      //noinspection CorrespondsUnsorted
+      this.canEqual(data) &&
+      runtime.ScalaRunTime._equals(this, data)
+    case _ => false
+  }
+
+  override def hashCode(): Int = runtime.ScalaRunTime._hashCode(this)
+}
 object SbtEntityData {
   def datakey[T](clazz: Class[T],
                  weight: Int = ProjectKeys.MODULE.getProcessingWeight + 1
@@ -23,7 +35,7 @@ object SbtEntityData {
   * Data describing a "build" module: The IDEA-side representation of the sbt meta-project
   * @author Pavel Fatin
   */
-class SbtBuildModuleData(val imports: Seq[String], val resolvers: Set[SbtResolver]) extends SbtEntityData
+case class SbtBuildModuleData(imports: Seq[String], resolvers: Set[SbtResolver]) extends SbtEntityData
 
 object SbtBuildModuleData {
   val Key: Key[SbtBuildModuleData] = datakey(classOf[SbtBuildModuleData])
@@ -41,11 +53,11 @@ object SbtModuleData {
 }
 
 
-class SbtProjectData(val basePackages: Seq[String],
-                     val jdk: Option[Sdk],
-                     val javacOptions: Seq[String],
-                     val sbtVersion: String,
-                     val projectPath: String
+case class SbtProjectData(basePackages: Seq[String],
+                          jdk: Option[Sdk],
+                          javacOptions: Seq[String],
+                          sbtVersion: String,
+                          projectPath: String
                     ) extends SbtEntityData
 
 object SbtProjectData {
@@ -75,11 +87,11 @@ object SbtCommandData {
 }
 
 
-class ModuleExtData(val scalaVersion: Option[Version],
-                    val scalacClasspath: Seq[File],
-                    val scalacOptions: Seq[String],
-                    val jdk: Option[Sdk],
-                    val javacOptions: Seq[String]
+case class ModuleExtData(scalaVersion: Option[Version],
+                         scalacClasspath: Seq[File],
+                         scalacOptions: Seq[String],
+                         jdk: Option[Sdk],
+                         javacOptions: Seq[String]
                    ) extends SbtEntityData
 
 object ModuleExtData {
@@ -88,14 +100,14 @@ object ModuleExtData {
 
 
 
-class Play2ProjectData(val projectKeys: Map[String, Map[String, ParsedValue[_]]]) extends SbtEntityData
+case class Play2ProjectData(projectKeys: Map[String, Map[String, ParsedValue[_]]]) extends SbtEntityData
 object Play2ProjectData {
   val Key: Key[Play2ProjectData] = datakey(classOf[Play2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
 }
 
-class AndroidFacetData(val version: String, val manifest: File, val apk: File,
-                       val res: File, val assets: File, val gen: File, val libs: File,
-                       val isLibrary: Boolean, val proguardConfig: Seq[String]) extends SbtEntityData
+case class AndroidFacetData(version: String, manifest: File, apk: File,
+                            res: File, assets: File, gen: File, libs: File,
+                            isLibrary: Boolean, proguardConfig: Seq[String]) extends SbtEntityData
 object AndroidFacetData {
   val Key: Key[AndroidFacetData] = datakey(classOf[AndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 }

@@ -31,7 +31,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
         name := "Module 1"
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
-        arbitraryNodes += new AndroidFacetNode(new AndroidFacetData(
+        arbitraryNodes += new AndroidFacetNode(AndroidFacetData(
           version = "21",
           manifest = new File(getProject.getBasePath + "/manifest.xml"),
           apk = new File(getProject.getBasePath + "/test.apk"),
@@ -86,7 +86,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new AndroidFacetNode(new AndroidFacetData("", null, null, null, null, null, null, false, Seq.empty))
+      arbitraryNodes += new AndroidFacetNode(AndroidFacetData("", null, null, null, null, null, null, false, Seq.empty))
     }.build.toDataNode
     importProjectData(testProject)
   }
