@@ -6,12 +6,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskResult
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
+import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
@@ -35,14 +35,17 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   def completion(line: String): List[String] = List.empty
 
   /**
-    * Execute an sbt task.
+    * Execute an sbt command.
     */
-  def command(cmd: String): Future[ProjectTaskResult] =
-    queueCommand(cmd, new CommandListener(None))
+  def command(cmd: String): Future[ProjectTaskResult] = {
+    val eventHandler: EventHandler = _ => ()
+    commandWithHandler(cmd, eventHandler)
+  }
 
-  /** Execute sbt task with indicator that gets updated. */
-  def commandWithIndicator(cmd: String, indicator: ProgressIndicator): Future[ProjectTaskResult] = {
-    val listener = new CommandListener(Option(indicator))
+  /** Execute sbt command with event handler that gets called for text output on the shell and other events.
+    */
+  def commandWithHandler(cmd: String, eventHandler: EventHandler): Future[ProjectTaskResult] = {
+    val listener = new CommandListener(eventHandler)
     queueCommand(cmd, listener)
   }
 
@@ -127,9 +130,17 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
 object SbtShellCommunication {
   def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
+
+  type EventHandler = ShellEvent => Unit
+
+  sealed trait ShellEvent
+  case object TaskStart extends ShellEvent
+  case object TaskComplete extends ShellEvent
+  case class Output(line: String) extends ShellEvent
 }
 
-class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener {
+
+class CommandListener(eventHandler: EventHandler) extends LineListener {
 
   private var success = false
   private var errors = 0
@@ -139,26 +150,16 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
   def future: Future[ProjectTaskResult] = promise.future
 
-  override def startNotified(event: ProcessEvent): Unit = {
-    indicator.foreach { i =>
-      i.setText("build started") // FIXME build-specific stuff doesn't belong in here
-      i.setFraction(0.1)
-    }
-  }
+  override def startNotified(event: ProcessEvent): Unit = eventHandler(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
     val res = new ProjectTaskResult(true, errors, warnings)
-    indicator.foreach(_.stop())
+    // TODO separate event type?
+    eventHandler(TaskComplete)
     promise.complete(Success(res))
   }
 
   override def onLine(text: String): Unit = {
-
-    indicator.foreach { i =>
-      i.setFraction(0.2)
-      i.setText("building ...") // FIXME build-specific stuff doesn't belong in here
-      i.setText2(text)
-    }
 
     if (text startsWith "[error]") {
       success = false
@@ -172,15 +173,13 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
     if (!promise.isCompleted && promptReady(text)) {
       val res = new ProjectTaskResult(false, errors, warnings)
-      indicator.foreach { i =>
-        i.setFraction(1)
-        i.setText("build completed")  // FIXME build-specific stuff doesn't belong in here
-        i.stop()
-      }
+
+      eventHandler(TaskComplete)
       promise.complete(Success(res))
+    } else {
+      eventHandler(Output(text))
     }
   }
-
 }
 
 
@@ -256,4 +255,3 @@ abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.Colore
     onLine(line)
   }
 }
-
