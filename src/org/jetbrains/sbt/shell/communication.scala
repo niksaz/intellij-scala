@@ -30,28 +30,18 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private val shellQueueReady = new Semaphore(1)
   private val commands = new LinkedBlockingQueue[(String, CommandListener)]()
 
-
-  // TODO ask sbt to provide completions for a line via its parsers
-  def completion(line: String): List[String] = List.empty
-
   /**
-    * Execute an sbt command.
+    * Queue an sbt command for execution in the sbt shell.
     */
-  def command(cmd: String): Future[ProjectTaskResult] = {
+  def command(cmd: String, eventHandler: EventHandler = _=>(), showShell: Boolean = true): Future[ProjectTaskResult] = {
     val eventHandler: EventHandler = _ => ()
-    commandWithHandler(cmd, eventHandler)
-  }
-
-  /** Execute sbt command with event handler that gets called for text output on the shell and other events.
-    */
-  def commandWithHandler(cmd: String, eventHandler: EventHandler): Future[ProjectTaskResult] = {
     val listener = new CommandListener(eventHandler)
+    if (showShell) process.openShellRunner()
+    initCommunication(process.acquireShellProcessHandler)
     queueCommand(cmd, listener)
   }
 
   private def queueCommand(cmd: String, listener: CommandListener) = {
-
-    initCommunication(process.acquireShellProcessHandler)
 
     commands.put((cmd, listener))
 
@@ -94,7 +84,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         val handler = process.acquireShellProcessHandler
         handler.addProcessListener(listener)
 
-        // TODO more robust way to get the writer? cf createOutputStreamWriter
         val shell = new PrintWriter(new OutputStreamWriter(handler.getProcessInput))
 
         // we want to avoid registering multiple callbacks to the same output and having whatever side effects
@@ -112,7 +101,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   /**
     * To be called when the process is reinitialized externally
     */
-  def initCommunication(handler: OSProcessHandler): Unit = {
+  private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     if (!communicationActive.getAndSet(true)) {
       val stateChanger = new SbtShellReadyListener(
         whenReady = shellPromptReady.set(true),
@@ -140,7 +129,7 @@ object SbtShellCommunication {
 }
 
 
-class CommandListener(eventHandler: EventHandler) extends LineListener {
+private[shell] class CommandListener(eventHandler: EventHandler) extends LineListener {
 
   private var success = false
   private var errors = 0
@@ -154,7 +143,7 @@ class CommandListener(eventHandler: EventHandler) extends LineListener {
 
   override def processTerminated(event: ProcessEvent): Unit = {
     val res = new ProjectTaskResult(true, errors, warnings)
-    // TODO separate event type?
+    // TODO separate event type for completion by termination?
     eventHandler(TaskComplete)
     promise.complete(Success(res))
   }
@@ -185,7 +174,7 @@ class CommandListener(eventHandler: EventHandler) extends LineListener {
 
 /**
   * Monitor sbt prompt status, do something when state changes.
-  * TODO: Maybe specify an internal callback thingy just for ready state changes so that other parts don't have to depend on prompt changes
+  *
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */
@@ -206,7 +195,7 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
   }
 }
 
-object SbtProcessUtil {
+private[shell] object SbtProcessUtil {
 
   def promptReady(line: String): Boolean =
     line.trim match {
@@ -223,7 +212,7 @@ object SbtProcessUtil {
 /**
   * Pieces lines back together from parts of colored lines.
   */
-abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
+private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
 
   private val builder = new StringBuilder
 

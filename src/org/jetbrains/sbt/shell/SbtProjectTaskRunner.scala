@@ -109,13 +109,15 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     // TODO user feedback
     if (moduleCommands.nonEmpty) {
 
-      val command = moduleCommands.mkString("; ", "; ", "")
+      val command =
+        if (moduleCommands.size == 1) moduleCommands.head
+        else moduleCommands.mkString("; ", "; ", "")
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
       val task = new CommandTask(project) {
         override def run(indicator: ProgressIndicator): Unit = {
           indicator.setIndeterminate(true)
-          //        indicator.setFraction(0) // TODO how does the fraction thing work? can we also have an indicator without fraction?
+          indicator.setFraction(0) // TODO how does the fraction thing work?
           indicator.setText("queued sbt build ...")
 
           val handler: SbtShellCommunication.EventHandler = {
@@ -131,7 +133,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
           // TODO consider running module build tasks separately
           // may require collecting results individually and aggregating
           // and shell communication should do proper queueing
-          val commandFuture = shell.commandWithHandler(command, handler)
+          val commandFuture = shell.command(command, handler)
             .andThen {
               case Success(taskResult) =>
                 // TODO progress monitoring

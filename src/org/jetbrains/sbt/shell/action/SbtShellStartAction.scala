@@ -21,7 +21,7 @@ class SbtShellStartAction extends ExternalSystemAction {
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    SbtProcessManager.forProject(event.getProject).openShellRunner()
+    SbtProcessManager.forProject(event.getProject).openShellRunner(focus = true)
   }
 
   // hide for non-sbt project toolwindows
