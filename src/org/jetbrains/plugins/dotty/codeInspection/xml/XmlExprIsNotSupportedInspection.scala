@@ -60,5 +60,5 @@ class ReplaceXmlQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(name
 object XmlExprIsNotSupportedInspection {
   private[xml] val id = "XmpExprIsNotSupported"
   private[xml] val name = InspectionBundle.message("replace.with.string.literal")
-  private[xml] val message = s"Xml literals are not supported in Dotty"
+  private[xml] val message = "Xml literals are not supported in Dotty"
 }

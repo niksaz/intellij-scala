@@ -1251,11 +1251,16 @@
                          displayName="Deprecated with type" groupPath="Scala" groupName="Other"
                          shortName="DottyDeprecatedWith" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+
+        <!-- dotty -->
         <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlExprIsNotSupportedInspection"
                          displayName="Xml literals are not supported in Dotty" groupPath="Dotty" groupName="Xml"
                          shortName="DottyXmlLiterals" level="ERROR"
                          enabledByDefault="true" language="Dotty"/>
-
+        <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.procedure.ProcedureSyntaxInspection"
+                         displayName="Procedure syntax is not supported in Dotty" groupPath="Dotty" groupName="Procedure"
+                         shortName="ProcedureSyntax" level="ERROR"
+                         enabledByDefault="true" language="Dotty"/>
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
