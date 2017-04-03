@@ -32,7 +32,7 @@ object SideEffectsUtil {
                       (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = expr match {
     case lit: ScInterpolatedStringLiteral =>
       import org.jetbrains.plugins.scala.lang.psi.api.base.InterpolatedStringType._
-      Seq(STANDART, FORMAT, RAW).contains(lit.getType)
+      Seq(STANDART, FORMAT, RAW, XML).contains(lit.getType)
     case _: ScLiteral => true
     case _: ScThisReference => true
     case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true

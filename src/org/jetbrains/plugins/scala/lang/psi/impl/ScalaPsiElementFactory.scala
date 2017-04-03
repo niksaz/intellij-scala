@@ -917,6 +917,16 @@ object ScalaPsiElementFactory {
                                     (implicit manager: PsiManager): PsiElement =
     createScalaFileFromText(prefix + "\"blah\"").getFirstChild.getFirstChild
 
+  def createInterpolatedStringInjection(implicit manager: PsiManager): ASTNode =
+    createScalaFileFromText("s\"$x\"")
+      .getFirstChild.getNode
+      .findChildByType(ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION)
+
+  def createMultilineInterpolatedStringEnd(implicit manager: PsiManager): ASTNode =
+    createScalaFileFromText("s\"\"\"\"\"\"")
+      .getFirstChild.getNode
+      .findChildByType(ScalaTokenTypes.tINTERPOLATED_STRING_END)
+
   def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
     val baseText = infixExpr.getBaseExpr.getText
     val opText = infixExpr.operation.getText

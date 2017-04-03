@@ -15,5 +15,5 @@ trait ScInterpolatedStringLiteral extends ScLiteral with ScInterpolated {
 
 object InterpolatedStringType extends Enumeration {
   type StringType = Value
-  val STANDART, FORMAT, PATTERN, RAW = Value
+  val STANDART, FORMAT, PATTERN, RAW, XML = Value
 }
