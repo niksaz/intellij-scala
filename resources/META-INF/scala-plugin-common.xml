@@ -1257,6 +1257,10 @@
                          displayName="Xml expressions are not supported in Dotty" groupPath="Dotty" groupName="Xml"
                          shortName="DottyXmlExpr" level="ERROR"
                          enabledByDefault="true" language="Dotty"/>
+        <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlPatternsNotSupportedInspection"
+                         displayName="Xml patterns are not supported in Dotty" groupPath="Dotty" groupName="Xml"
+                         shortName="DottyXmlPattern" level="ERROR"
+                         enabledByDefault="true" language="Dotty"/>
         <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.procedure.ProcedureSyntaxInspection"
                          displayName="Procedure syntax is not supported in Dotty" groupPath="Dotty" groupName="Procedure"
                          shortName="ProcedureSyntax" level="ERROR"
