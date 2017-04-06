@@ -1541,6 +1541,15 @@
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
 
+      <!-- Dotty -->
+
+      <action id="Dotty.RenameScalaToDotty" class="org.jetbrains.plugins.dotty.migration.MigrateFromScalaToDotty"
+              text="Migrate to Dotty" description="Migrate from Scala to Dotty">
+        <add-to-group group-id="RefactoringMenu" anchor="last"/>
+        <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
+        <keyboard-shortcut first-keystroke="control shift M" keymap="$default"/>
+      </action>
+
     </actions>
 
 </idea-plugin>

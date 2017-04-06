@@ -23,10 +23,10 @@ class XmlExprIsNotSupportedInspection extends AbstractInspection(id, name) {
 
 class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(name, token) {
   def replaceXmlExpr(psiElem: ScalaPsiElement): Unit = {
-    for (e <- psiElem.getChildren) {
-      e match {
-        case sc: ScalaPsiElement =>
-          replaceXmlExpr(sc)
+    for (child <- psiElem.getChildren) {
+      child match {
+        case scPsi: ScalaPsiElement =>
+          replaceXmlExpr(scPsi)
         case _ =>
       }
     }
