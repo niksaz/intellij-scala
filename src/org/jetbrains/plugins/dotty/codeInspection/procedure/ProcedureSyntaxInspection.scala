@@ -27,6 +27,7 @@ class ProcedureSyntaxQuickFix(token: PsiElement) extends AbstractFixOnPsiElement
     case element if element.isValid =>
       val functionDefinition = element.getParent.asInstanceOf[ScFunctionDefinition]
       new InsertReturnTypeAndEquals(functionDefinition).doApplyFix(project)
+    case _ =>
   }
 }
 

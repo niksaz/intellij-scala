@@ -1265,6 +1265,10 @@
                          displayName="Procedure syntax is not supported in Dotty" groupPath="Dotty" groupName="Procedure"
                          shortName="ProcedureSyntax" level="ERROR"
                          enabledByDefault="true" language="Dotty"/>
+        <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.lazyVal.LazyValNotVolatileInspection"
+                         displayName="lazy val should be annotated with @volatile" groupPath="Dotty" groupName="Lazy"
+                         shortName="LazyVal" level="WARNING"
+                         enabledByDefault="true" language="Dotty"/>
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"

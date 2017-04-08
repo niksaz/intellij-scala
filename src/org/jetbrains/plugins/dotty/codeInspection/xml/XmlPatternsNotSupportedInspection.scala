@@ -49,7 +49,7 @@ class ReplaceXmlPatternQuickFix(token: PsiElement) extends AbstractFixOnPsiEleme
   }
 
   override def doApplyFix(project: Project): Unit = getElement match {
-    case pattern: ScXmlPatternImpl =>
+    case pattern: ScXmlPatternImpl if pattern.isValid =>
       replaceXmlPattern(pattern)
     case _ =>
   }

@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.dotty.migration
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
+import org.jetbrains.plugins.dotty.codeInspection.lazyVal.LazyValNotVolatileInspection.isApplicableToDef
 import org.jetbrains.plugins.dotty.codeInspection.procedure.ProcedureSyntaxQuickFix
 import org.jetbrains.plugins.dotty.codeInspection.xml.{ReplaceXmlExprQuickFix, ReplaceXmlPatternQuickFix}
+import org.jetbrains.plugins.dotty.codeInspection.lazyVal.LazyValNotVolatileQuickFix
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kDEF
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml.{ScXmlExprImpl, ScXmlPatternImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScPatternDefinitionImpl
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -23,6 +26,8 @@ class MigrateFromScalaToDotty extends AnAction {
       case pattern: ScXmlPatternImpl =>
         new ReplaceXmlPatternQuickFix(pattern).doApplyFix(rootElement.getProject)
         return
+      case patternDef: ScPatternDefinitionImpl if isApplicableToDef(patternDef) =>
+        new LazyValNotVolatileQuickFix(patternDef).doApplyFix(rootElement.getProject)
       case funcDef: ScFunctionDefinition if !funcDef.hasAssign =>
         funcDef.findChildrenByType(kDEF).foreach { token =>
           new ProcedureSyntaxQuickFix(token).doApplyFix(rootElement.getProject)

@@ -49,7 +49,7 @@ class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(
   }
 
   override def doApplyFix(project: Project): Unit = getElement match {
-    case expr: ScXmlExprImpl =>
+    case expr: ScXmlExprImpl if expr.isValid =>
       replaceXmlExpr(expr)
     case _ =>
   }
