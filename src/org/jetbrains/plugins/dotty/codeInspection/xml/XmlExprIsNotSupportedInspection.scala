@@ -8,7 +8,9 @@ import org.jetbrains.plugins.dotty.codeInspection.xml.XmlExprIsNotSupportedInspe
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 
 /**
@@ -22,35 +24,37 @@ class XmlExprIsNotSupportedInspection extends AbstractInspection(id, name) {
 }
 
 class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(name, token) {
-  def replaceXmlExpr(psiElem: ScalaPsiElement): Unit = {
-    for (child <- psiElem.getChildren) {
+  def replaceInjections(element: ScalaPsiElement): Unit = {
+    implicit val manager = element.getManager
+    element
+      .findChildrenByType(ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START)
+      .foreach {
+        p => p.getParent.addBefore(createInterpolatedStringInjection, p)
+      }
+
+    for (child <- element.getChildren) {
       child match {
-        case scPsi: ScalaPsiElement =>
-          replaceXmlExpr(scPsi)
+        case xmlExpr: ScXmlExpr =>
+          val replaced = replaceXmlExpr(xmlExpr)
+          xmlExpr.replace(replaced)
+        case psiElem: ScalaPsiElement =>
+          replaceInjections(psiElem)
         case _ =>
       }
     }
-    psiElem match {
-      case _: ScXmlExprImpl =>
-        val anchorNode = psiElem.getNode.getFirstChildNode
-        val xmlPrefix = ScalaPsiElementFactory.createInterpolatedStringPrefix("xml")(psiElem.getManager)
-        val startQuotes = ScalaPsiElementFactory.createMultilineInterpolatedStringEnd(psiElem.getManager)
-        psiElem.getNode.addChild(startQuotes, anchorNode)
-        psiElem.getNode.addChild(xmlPrefix.getNode, startQuotes)
-        val endQuotes = ScalaPsiElementFactory.createMultilineInterpolatedStringEnd(psiElem.getManager)
-        psiElem.getNode.addChild(endQuotes)
-      case _ =>
-        val injectoionNode = psiElem.getNode.findChildByType(ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START)
-        if (injectoionNode != null) {
-          psiElem.getNode.addChild(
-            ScalaPsiElementFactory.createInterpolatedStringInjection(psiElem.getManager), injectoionNode)
-        }
-    }
+  }
+
+  def replaceXmlExpr(xmlExpr: ScXmlExpr): ScInterpolatedStringLiteral = {
+    replaceInjections(xmlExpr)
+    implicit val manager = xmlExpr.getManager
+    createExpressionFromText("xml\"\"\"" + xmlExpr.getText + "\"\"\"").asInstanceOf[ScInterpolatedStringLiteral]
   }
 
   override def doApplyFix(project: Project): Unit = getElement match {
-    case expr: ScXmlExprImpl if expr.isValid =>
-      replaceXmlExpr(expr)
+    case expr: ScXmlExpr if expr.isValid =>
+      implicit val manager = expr.getManager
+      val copy = createExpressionFromText(expr.getText).asInstanceOf[ScXmlExpr]
+      expr.replace(replaceXmlExpr(copy))
     case _ =>
   }
 }
