@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.dotty.codeInspection.xml
+package org.jetbrains.plugins.scala.codeInspection.xml
 
 import com.intellij.codeInspection.ProblemHighlightType.WEAK_WARNING
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.dotty.codeInspection.xml.XmlExprIsNotSupportedInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -12,19 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
-
+import org.jetbrains.plugins.scala.codeInspection.xml.XmlLiteralInspection._
 
 /**
   * @author niksaz
   */
-class XmlExprIsNotSupportedInspection extends AbstractInspection(id, name) {
+class XmlLiteralInspection extends AbstractInspection(id, name) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScXmlExprImpl =>
-      holder.registerProblem(expr, message, WEAK_WARNING, new ReplaceXmlExprQuickFix(expr))
+      holder.registerProblem(expr, message, WEAK_WARNING, new XmlLiteralToInterpolatedStringTransformation(expr))
   }
 }
 
-class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(name, token) {
+class XmlLiteralToInterpolatedStringTransformation(token: PsiElement) extends AbstractFixOnPsiElement(name, token) {
   def replaceInjections(element: ScalaPsiElement): Unit = {
     implicit val manager = element.getManager
     element
@@ -61,8 +60,8 @@ class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(
   }
 }
 
-object XmlExprIsNotSupportedInspection {
-  private[xml] val id = "XmpExprIsNotSupported"
+object XmlLiteralInspection {
+  private[xml] val id = "XmpLiteralsAreDeprecated"
   private[xml] val name = InspectionBundle.message("replace.with.interpolated.string")
-  private[xml] val message = "Xml expressions are not supported in Dotty"
+  private[xml] val message = "Xml literals are deprecated"
 }

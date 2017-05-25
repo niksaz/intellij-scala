@@ -1253,9 +1253,9 @@
                          displayName="Deprecated with type" groupPath="Dotty" groupName="Other"
                          shortName="DottyDeprecatedWith" level="WARNING"
                          enabledByDefault="true" language="Dotty"/>
-        <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlExprIsNotSupportedInspection"
-                         displayName="Xml expressions are not supported in Dotty" groupPath="Dotty" groupName="Xml"
-                         shortName="DottyXmlExpr" level="WARNING"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.XmlLiteralInspection"
+                         displayName="Xml literals are deprecated" groupPath="Scala" groupName="Xml"
+                         shortName="XmpLiteralsAreDeprecated" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlPatternsNotSupportedInspection"
                          displayName="Xml patterns are not supported in Dotty" groupPath="Dotty" groupName="Xml"

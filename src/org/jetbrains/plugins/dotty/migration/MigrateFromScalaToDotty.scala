@@ -3,8 +3,9 @@ package org.jetbrains.plugins.dotty.migration
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
 import org.jetbrains.plugins.dotty.codeInspection.lazyVal.LazyValNotVolatileInspection.isApplicableToDef
 import org.jetbrains.plugins.dotty.codeInspection.procedure.ProcedureSyntaxQuickFix
-import org.jetbrains.plugins.dotty.codeInspection.xml.{ReplaceXmlExprQuickFix, ReplaceXmlPatternQuickFix}
+import org.jetbrains.plugins.dotty.codeInspection.xml.ReplaceXmlPatternQuickFix
 import org.jetbrains.plugins.dotty.codeInspection.lazyVal.LazyValNotVolatileQuickFix
+import org.jetbrains.plugins.scala.codeInspection.xml.XmlLiteralToInterpolatedStringTransformation
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kDEF
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -21,7 +22,7 @@ class MigrateFromScalaToDotty extends AnAction {
   def traverseAndApplyFixes(rootElement: ScalaPsiElement): Unit = {
     rootElement match {
       case expr: ScXmlExprImpl =>
-        new ReplaceXmlExprQuickFix(expr).doApplyFix(rootElement.getProject)
+        new XmlLiteralToInterpolatedStringTransformation(expr).doApplyFix(rootElement.getProject)
         return
       case pattern: ScXmlPatternImpl =>
         new ReplaceXmlPatternQuickFix(pattern).doApplyFix(rootElement.getProject)
