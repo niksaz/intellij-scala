@@ -80,7 +80,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   {
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
-    INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
+    //INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
   }
 
   //colection type highlighting settings

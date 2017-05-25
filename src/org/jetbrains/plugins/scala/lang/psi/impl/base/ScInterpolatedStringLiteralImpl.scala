@@ -19,7 +19,6 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
     case "f" => InterpolatedStringType.FORMAT
     case "id" => InterpolatedStringType.PATTERN
     case "raw" => InterpolatedStringType.RAW
-    case "xml" => InterpolatedStringType.XML
     case _ => null
   }
 

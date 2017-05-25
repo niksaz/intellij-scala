@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.dotty.codeInspection.xml
 
-import com.intellij.codeInspection.ProblemHighlightType.ERROR
+import com.intellij.codeInspection.ProblemHighlightType.WEAK_WARNING
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -13,13 +13,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 
+
 /**
   * @author niksaz
   */
 class XmlExprIsNotSupportedInspection extends AbstractInspection(id, name) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScXmlExprImpl =>
-      holder.registerProblem(expr, message, ERROR, new ReplaceXmlExprQuickFix(expr))
+      holder.registerProblem(expr, message, WEAK_WARNING, new ReplaceXmlExprQuickFix(expr))
   }
 }
 
@@ -35,8 +36,8 @@ class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(
     for (child <- element.getChildren) {
       child match {
         case xmlExpr: ScXmlExpr =>
-          val replaced = replaceXmlExpr(xmlExpr)
-          xmlExpr.replace(replaced)
+          val replacement = replaceXmlExpr(xmlExpr)
+          xmlExpr.replaceExpression(replacement, removeParenthesis = false)
         case psiElem: ScalaPsiElement =>
           replaceInjections(psiElem)
         case _ =>
@@ -54,7 +55,8 @@ class ReplaceXmlExprQuickFix(token: PsiElement) extends AbstractFixOnPsiElement(
     case expr: ScXmlExpr if expr.isValid =>
       implicit val manager = expr.getManager
       val copy = createExpressionFromText(expr.getText).asInstanceOf[ScXmlExpr]
-      expr.replace(replaceXmlExpr(copy))
+      val replacement = replaceXmlExpr(copy)
+      expr.replaceExpression(replacement, removeParenthesis = false)
     case _ =>
   }
 }

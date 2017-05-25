@@ -1255,8 +1255,8 @@
                          enabledByDefault="true" language="Dotty"/>
         <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlExprIsNotSupportedInspection"
                          displayName="Xml expressions are not supported in Dotty" groupPath="Dotty" groupName="Xml"
-                         shortName="DottyXmlExpr" level="ERROR"
-                         enabledByDefault="true" language="Dotty"/>
+                         shortName="DottyXmlExpr" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.dotty.codeInspection.xml.XmlPatternsNotSupportedInspection"
                          displayName="Xml patterns are not supported in Dotty" groupPath="Dotty" groupName="Xml"
                          shortName="DottyXmlPattern" level="ERROR"

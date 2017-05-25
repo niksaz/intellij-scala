@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions.{Both, PsiClassExt, PsiMemberExt, PsiNamedElementExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -32,7 +31,7 @@ object SideEffectsUtil {
                       (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = expr match {
     case lit: ScInterpolatedStringLiteral =>
       import org.jetbrains.plugins.scala.lang.psi.api.base.InterpolatedStringType._
-      Seq(STANDART, FORMAT, RAW, XML).contains(lit.getType)
+      Seq(STANDART, FORMAT, RAW).contains(lit.getType)
     case _: ScLiteral => true
     case _: ScThisReference => true
     case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
